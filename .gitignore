@@ -23,9 +23,9 @@ Thumbs.db
 
 # --- PhysioSight working data (never commit landmarks or sessions of real people) ---
 *.npz
-cache/
-baseline/
-sessions/
+/cache/
+/baseline/
+/sessions/
 .hypothesis/
 .pytest_cache/
 .mypy_cache/
