@@ -161,7 +161,7 @@ def plank_pose(q: Params, body: Body, origin: np.ndarray) -> dict[str, np.ndarra
 
 
 POSERS: dict[str, Callable[[Params, Body, np.ndarray], dict[str, np.ndarray]]] = {
-    "squat": squat_pose, "bicep_curl": curl_pose, "pushup": pushup_pose, "plank": plank_pose,
+    "squat": squat_pose, "bicep_curl": curl_pose, "shoulder_flexion": curl_pose, "pushup": pushup_pose, "plank": plank_pose,
 }
 
 
@@ -206,6 +206,7 @@ def render(
     origin = {
         "squat": np.array([w * 0.45, h * 0.92]),
         "bicep_curl": np.array([w * 0.45, h * 0.95]),
+        "shoulder_flexion": np.array([w * 0.45, h * 0.95]),
         "pushup": np.array([w * 0.70, h * 0.90]),
         "plank": np.array([w * 0.70, h * 0.90]),
     }[script.exercise]
@@ -247,6 +248,16 @@ def curl_script(reps: int = 3, top: float = 35.0, up_s: float = 1.0, down_s: flo
         moves += [(up_s, {"elbow": top}), (0.3, {}), (down_s, {"elbow": 175.0}), (pause_s, {})]
     ok = top <= 43 and drift <= 33 and up_s + down_s + 0.3 >= 0.7
     return Script("bicep_curl", rest, moves, expected_valid=reps if ok else 0)
+
+
+def shoulder_flexion_script(reps: int = 3, top: float = 160.0, up_s: float = 1.5, down_s: float = 1.5,
+                            elbow: float = 172.0, pause_s: float = 0.8) -> Script:
+    rest = {"elbow": elbow, "drift": 10.0}
+    moves: list[tuple[float, Params]] = [(1.0, rest)]
+    for _ in range(reps):
+        moves += [(up_s, {"drift": top}), (0.5, {}), (down_s, {"drift": 10.0}), (pause_s, {})]
+    ok = top >= 152 and elbow >= 152
+    return Script("shoulder_flexion", rest, moves, expected_valid=reps if ok else 0)
 
 
 def pushup_script(reps: int = 3, bottom: float = 85.0, down_s: float = 1.0, up_s: float = 1.0,

@@ -1,0 +1,54 @@
+# Active shoulder flexion (forward arm raise) - a common ROM exercise after
+# shoulder injury/surgery. Added purely as YAML to show that new exercises need
+# no engine code.
+#
+# Validity caveat: in a webcam/BlazePose study against optical motion capture
+# (Wang et al., PLOS ONE 2023) shoulder *flexion* had poor agreement
+# (ICC ~0.18). Treat recorded peaks as indicative until validated with your
+# own reference data (see docs/VALIDATION.md).
+id: shoulder_flexion
+version: "1.0.0"
+kind: repetition
+name_key: exercise.shoulder_flexion
+sides: [right, left]
+view: side
+default_target: 10
+params:
+  rest_angle: {default: 30, min: 0, max: 90, unit: deg, doc: "hip-shoulder-elbow angle counted as arm down"}
+  start_angle: {default: 45, min: 5, max: 120, unit: deg}
+  target_angle: {default: 150, min: 60, max: 180, unit: deg, doc: "prescribed flexion; calibrate per patient"}
+  min_elbow: {default: 150, min: 90, max: 180, unit: deg, doc: "elbow must stay this straight"}
+  min_rep_s: {default: 1.0, min: 0, max: 20, unit: s}
+  ready_hold_s: {default: 0.12, min: 0, max: 5, unit: s}
+  target_hold_s: {default: 0.2, min: 0, max: 10, unit: s, doc: "brief pause at the top"}
+  return_hold_s: {default: 0.09, min: 0, max: 5, unit: s}
+  tracking_grace_s: {default: 0.03, min: 0, max: 5, unit: s}
+  max_side_span: {default: 0.35, min: 0.05, max: 1.5, unit: ratio, doc: "shoulder width / torso length below which the camera is side-on"}
+required: ["{side}_hip", "{side}_shoulder", "{side}_elbow", "{side}_wrist"]
+features:
+  shoulder: {type: joint_angle, points: ["{side}_hip", "{side}_shoulder", "{side}_elbow"]}
+  elbow: {type: joint_angle, points: ["{side}_shoulder", "{side}_elbow", "{side}_wrist"]}
+  shoulder_span: {type: distance_ratio, points: [left_shoulder, right_shoulder, [left_shoulder, right_shoulder], [left_hip, right_hip]]}
+derived:
+  elbow_bent: "elbow < p.min_elbow"
+ready: {when: "shoulder <= p.rest_angle", hold_s: p.ready_hold_s}
+start: {when: "shoulder > p.start_angle"}
+target: {when: "shoulder >= p.target_angle", hold_s: p.target_hold_s}
+return: {when: "shoulder <= p.rest_angle", hold_s: p.return_hold_s}
+min_rep_duration_s: p.min_rep_s
+tracking_grace_s: p.tracking_grace_s
+missed_target_fault: insufficient_range
+checks:
+  - {id: elbow, when: "elbow_bent", fault: elbow_bent, scope: movement}
+record:
+  shoulder_flexion_{side}: "shoulder"
+  elbow_flexion_{side}: "180 - elbow"
+primary_metric: {label_key: metric.shoulder, expr: "shoulder"}
+view_check: "shoulder_span < p.max_side_span"
+tracking_hint: hint.shoulder.in_view
+hints:
+  - {when: "elbow_bent", key: hint.shoulder.straight_elbow}
+  - {when: "not state.ready", key: hint.shoulder.arm_down}
+  - {when: "state.at_target", key: hint.shoulder.lower_slowly}
+  - {when: "state.in_movement", key: hint.shoulder.raise_higher}
+default_hint: hint.common.progress

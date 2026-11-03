@@ -17,7 +17,7 @@ def test_committed_json_schema_matches_model():
 def test_specs_lists_builtins(capsys):
     assert main(["specs"]) == 0
     out = capsys.readouterr().out
-    for name in ("bicep_curl", "squat", "plank", "pushup"):
+    for name in ("bicep_curl", "squat", "plank", "pushup", "shoulder_flexion"):
         assert name in out
 
 

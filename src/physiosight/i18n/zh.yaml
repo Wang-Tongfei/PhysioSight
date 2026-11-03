@@ -36,3 +36,12 @@ fault.plank_body_alignment: 保持肩、髋、踝在一条直线上
 fault.tracking_lost: 追踪丢失，请留在画面中
 fault.session_ended: 训练在动作中途结束
 event.good_rep: "动作标准！（{progress}/{target}）"
+exercise.shoulder_flexion: 肩关节前屈
+metric.shoulder: 肩
+hint.shoulder.in_view: 请侧对镜头，让被追踪的髋、肩和手臂出现在画面中
+hint.shoulder.straight_elbow: 保持肘关节伸直
+hint.shoulder.arm_down: 开始前手臂自然下垂在体侧
+hint.shoulder.lower_slowly: 高度到位，慢慢放下
+hint.shoulder.raise_higher: 手臂向前向上抬起
+fault.insufficient_range: 未达到规定的活动范围
+fault.elbow_bent: 保持肘关节伸直

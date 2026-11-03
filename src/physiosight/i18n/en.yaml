@@ -36,3 +36,12 @@ fault.plank_body_alignment: Keep shoulders, hips and ankles in one line
 fault.tracking_lost: Tracking lost - stay in view
 fault.session_ended: Session ended mid-repetition
 event.good_rep: "Good rep! ({progress}/{target})"
+exercise.shoulder_flexion: Shoulder flexion
+metric.shoulder: Shoulder
+hint.shoulder.in_view: Keep the tracked hip, shoulder and arm in view, side-on
+hint.shoulder.straight_elbow: Keep the elbow straight
+hint.shoulder.arm_down: Start with the arm relaxed at your side
+hint.shoulder.lower_slowly: Good height - lower slowly
+hint.shoulder.raise_higher: Raise the arm forward and up
+fault.insufficient_range: Did not reach the prescribed range
+fault.elbow_bent: Keep the elbow straight

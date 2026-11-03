@@ -1,7 +1,7 @@
 """Interactive monitor (camera or video) - the successor of physio_form_monitor.py.
 
 Keys (click the window first): 1 curl, 2 squat, 3 plank, 4 push-up,
-a switch side, r reset, q quit.
+5 shoulder flexion, a switch side, r reset, q quit.
 
 Every exercise segment (between start/switch/reset) becomes one Session. With
 ``sessions_dir`` set, each is written as JSON when the segment ends.
@@ -25,7 +25,8 @@ from physiosight.plugins.telegram import TelegramNotifier
 from physiosight.session.models import Session, SourceInfo
 
 log = logging.getLogger(__name__)
-EXERCISE_KEYS = {ord("1"): "bicep_curl", ord("2"): "squat", ord("3"): "plank", ord("4"): "pushup"}
+EXERCISE_KEYS = {ord("1"): "bicep_curl", ord("2"): "squat", ord("3"): "plank", ord("4"): "pushup",
+                 ord("5"): "shoulder_flexion"}
 
 
 @dataclass

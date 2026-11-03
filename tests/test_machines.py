@@ -73,6 +73,29 @@ def test_fault_events_are_edge_triggered():
     assert 1 <= len(drift) <= 2  # once when it starts (+ once as the end-of-rep reason)
 
 
+def test_view_check_flags_wrong_view_without_blocking_counting():
+    body = synth.Body(scale=327, depth_offset=90.0)  # wide shoulders = facing the camera
+    seq = synth.render(synth.shoulder_flexion_script(2), fps=30, body=body)
+    s = analyze_sequence(seq, "shoulder_flexion", 10, stop_at_target=False).session
+    assert s.summary.achieved == 2
+    assert s.tracking.frames_view_ok == 0 and all(r.view_ok is False for r in s.reps)
+    side = analyze_sequence(synth.render(synth.shoulder_flexion_script(2)), "shoulder_flexion", 10).session
+    assert all(r.view_ok for r in side.reps)
+
+
+def test_new_exercise_is_pure_yaml_shoulder_flexion():
+    s = analyze_sequence(synth.render(synth.shoulder_flexion_script(3, top=160)), "shoulder_flexion", 10).session
+    assert s.summary.achieved == 3
+    peak = s.reps[0].angles["shoulder_flexion_right"].max_deg
+    assert abs(peak - 160) < 1.0
+    low = analyze_sequence(synth.render(synth.shoulder_flexion_script(2, top=120)), "shoulder_flexion", 10,
+                           stop_at_target=False).session
+    assert low.summary.achieved == 0 and {"insufficient_range"} <= {f.code for f in low.faults}
+    bent = analyze_sequence(synth.render(synth.shoulder_flexion_script(2, elbow=120)), "shoulder_flexion", 10,
+                            stop_at_target=False).session
+    assert bent.summary.achieved == 0 and "elbow_bent" in {f.code for f in bent.faults}
+
+
 @pytest.mark.parametrize("script", [synth.squat_script(3), synth.curl_script(2), synth.pushup_script(2)],
                          ids=lambda s: s.exercise)
 def test_same_spec_runs_on_coco17_skeleton(script):
