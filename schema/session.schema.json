@@ -1,0 +1,506 @@
+{
+  "$defs": {
+    "AngleExtrema": {
+      "additionalProperties": false,
+      "properties": {
+        "min_deg": {
+          "title": "Min Deg",
+          "type": "number"
+        },
+        "max_deg": {
+          "title": "Max Deg",
+          "type": "number"
+        }
+      },
+      "required": [
+        "min_deg",
+        "max_deg"
+      ],
+      "title": "AngleExtrema",
+      "type": "object"
+    },
+    "AngleSpace": {
+      "enum": [
+        "image_2d",
+        "world_3d"
+      ],
+      "title": "AngleSpace",
+      "type": "string"
+    },
+    "EngineInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "pose_backend": {
+          "description": "e.g. 'mediapipe:pose_landmarker_lite'",
+          "title": "Pose Backend",
+          "type": "string"
+        },
+        "pose_backend_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pose Backend Version"
+        },
+        "angle_space": {
+          "$ref": "#/$defs/AngleSpace",
+          "default": "image_2d"
+        },
+        "smoothing": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. 'one_euro(1.0,0.01)'",
+          "title": "Smoothing"
+        },
+        "spec_id": {
+          "title": "Spec Id",
+          "type": "string"
+        },
+        "spec_version": {
+          "title": "Spec Version",
+          "type": "string"
+        },
+        "spec_sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Spec Sha256"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "Fully resolved thresholds used for this session (spec defaults -> patient calibration -> session overrides).",
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "version",
+        "pose_backend",
+        "spec_id",
+        "spec_version"
+      ],
+      "title": "EngineInfo",
+      "type": "object"
+    },
+    "ExerciseKind": {
+      "enum": [
+        "repetition",
+        "hold"
+      ],
+      "title": "ExerciseKind",
+      "type": "string"
+    },
+    "FaultEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "t_s": {
+          "minimum": 0,
+          "title": "T S",
+          "type": "number"
+        },
+        "code": {
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Code",
+          "type": "string"
+        },
+        "rep_index": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rep Index"
+        }
+      },
+      "required": [
+        "t_s",
+        "code"
+      ],
+      "title": "FaultEvent",
+      "type": "object"
+    },
+    "HoldSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "started_at_s": {
+          "minimum": 0,
+          "title": "Started At S",
+          "type": "number"
+        },
+        "ended_at_s": {
+          "minimum": 0,
+          "title": "Ended At S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "started_at_s",
+        "ended_at_s"
+      ],
+      "title": "HoldSegment",
+      "type": "object"
+    },
+    "RepOutcome": {
+      "enum": [
+        "valid",
+        "invalid",
+        "aborted"
+      ],
+      "title": "RepOutcome",
+      "type": "string"
+    },
+    "RepRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "description": "1-based index over all attempts.",
+          "minimum": 1,
+          "title": "Index",
+          "type": "integer"
+        },
+        "started_at_s": {
+          "minimum": 0,
+          "title": "Started At S",
+          "type": "number"
+        },
+        "ended_at_s": {
+          "minimum": 0,
+          "title": "Ended At S",
+          "type": "number"
+        },
+        "outcome": {
+          "$ref": "#/$defs/RepOutcome"
+        },
+        "reached_target": {
+          "title": "Reached Target",
+          "type": "boolean"
+        },
+        "faults": {
+          "items": {
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "type": "string"
+          },
+          "title": "Faults",
+          "type": "array"
+        },
+        "angles": {
+          "patternProperties": {
+            "^[a-z][a-z0-9_]*$": {
+              "$ref": "#/$defs/AngleExtrema"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 64
+          },
+          "title": "Angles",
+          "type": "object"
+        },
+        "view_ok": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "True if >= 80% of the repetition's frames met the view requirement. 2D angles from a mismatched viewpoint are projections and should not be interpreted as joint range of motion.",
+          "title": "View Ok"
+        }
+      },
+      "required": [
+        "index",
+        "started_at_s",
+        "ended_at_s",
+        "outcome",
+        "reached_target"
+      ],
+      "title": "RepRecord",
+      "type": "object"
+    },
+    "SessionSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "description": "Reps or seconds, depending on kind.",
+          "exclusiveMinimum": 0,
+          "title": "Target",
+          "type": "number"
+        },
+        "achieved": {
+          "description": "Valid reps, or credited hold seconds.",
+          "minimum": 0,
+          "title": "Achieved",
+          "type": "number"
+        },
+        "attempts": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Attempts",
+          "type": "integer"
+        },
+        "completed": {
+          "title": "Completed",
+          "type": "boolean"
+        },
+        "duration_s": {
+          "minimum": 0,
+          "title": "Duration S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "target",
+        "achieved",
+        "completed",
+        "duration_s"
+      ],
+      "title": "SessionSummary",
+      "type": "object"
+    },
+    "SourceInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "camera",
+            "video",
+            "landmarks",
+            "synthetic"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "nominal_fps": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nominal Fps"
+        },
+        "effective_fps": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Analysed frames / duration.",
+          "title": "Effective Fps"
+        },
+        "mirrored": {
+          "default": false,
+          "description": "True if frames were horizontally flipped before pose estimation; left/right landmark labels are then swapped anatomically.",
+          "title": "Mirrored",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "SourceInfo",
+      "type": "object"
+    },
+    "TrackingQuality": {
+      "additionalProperties": false,
+      "properties": {
+        "frames_total": {
+          "minimum": 0,
+          "title": "Frames Total",
+          "type": "integer"
+        },
+        "frames_with_pose": {
+          "minimum": 0,
+          "title": "Frames With Pose",
+          "type": "integer"
+        },
+        "frames_reliable": {
+          "description": "Frames where all required landmarks passed confidence gating.",
+          "minimum": 0,
+          "title": "Frames Reliable",
+          "type": "integer"
+        },
+        "tracking_lost_events": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Tracking Lost Events",
+          "type": "integer"
+        },
+        "frames_view_ok": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reliable frames whose camera viewpoint matched the spec's view requirement (None if the spec has no view check).",
+          "title": "Frames View Ok"
+        }
+      },
+      "required": [
+        "frames_total",
+        "frames_with_pose",
+        "frames_reliable"
+      ],
+      "title": "TrackingQuality",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "0.1.0",
+      "default": "0.1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "exercise_id": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Exercise Id",
+      "type": "string"
+    },
+    "exercise_kind": {
+      "$ref": "#/$defs/ExerciseKind"
+    },
+    "side": {
+      "default": "bilateral",
+      "enum": [
+        "left",
+        "right",
+        "bilateral"
+      ],
+      "title": "Side",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/SourceInfo"
+    },
+    "engine": {
+      "$ref": "#/$defs/EngineInfo"
+    },
+    "tracking": {
+      "$ref": "#/$defs/TrackingQuality"
+    },
+    "summary": {
+      "$ref": "#/$defs/SessionSummary"
+    },
+    "reps": {
+      "items": {
+        "$ref": "#/$defs/RepRecord"
+      },
+      "title": "Reps",
+      "type": "array"
+    },
+    "holds": {
+      "items": {
+        "$ref": "#/$defs/HoldSegment"
+      },
+      "title": "Holds",
+      "type": "array"
+    },
+    "faults": {
+      "items": {
+        "$ref": "#/$defs/FaultEvent"
+      },
+      "title": "Faults",
+      "type": "array"
+    }
+  },
+  "required": [
+    "exercise_id",
+    "exercise_kind",
+    "source",
+    "engine",
+    "tracking",
+    "summary"
+  ],
+  "title": "Session",
+  "type": "object"
+}
