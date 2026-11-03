@@ -38,6 +38,8 @@ exclude = ["/models", "/legacy", "/.github"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# repository root first, so `tools` resolves to this repo and not to an unrelated installed package
+pythonpath = [".", "src"]
 addopts = "-q"
 
 [tool.ruff]
