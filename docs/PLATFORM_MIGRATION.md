@@ -26,7 +26,7 @@ are otherwise unchanged, so the existing import code works.
 |---|---|
 | `.gitmodules`, `Physio_AI_Bot/` | Remove the submodule (`git submodule deinit -f Physio_AI_Bot && git rm -f Physio_AI_Bot`) |
 | `backend/requirements.txt` | Add `physiosight[mediapipe,notify] @ git+https://github.com/Wang-Tongfei/PhysioSight@<tag>`; drop `opencv-python`, `mediapipe` (now transitive) |
-| `backend/Dockerfile`, root `Dockerfile` | Remove the clone/`COPY Physio_AI_Bot/` steps; install the requirement above. Copy the two model files (`models/*.task`) from the engine repository or download them at build time, and pass their paths explicitly |
+| `backend/Dockerfile`, root `Dockerfile` | Remove the clone/`COPY Physio_AI_Bot/` steps and `git`; install the requirement above. The MediaPipe models are bundled in the wheel and found by `physiosight.perception.models.model_path()` (override with `PHYSIOSIGHT_MODELS`) |
 | `backend/app/services/monitor_engine.py` | Replace `_load_bot_modules()` and the analysis part of `_run()` (see below). Keep job management, MJPEG streaming, ownership checks and persistence |
 | `backend/app/schemas/session.py` | Add an upload schema that wraps `physiosight.session.Session` |
 | `backend/app/models/session.py` | Store the Session JSON (new `session_json` JSON column or a `session_records` table) next to the summary columns |
@@ -39,6 +39,7 @@ are otherwise unchanged, so the existing import code works.
 from physiosight.capture.sources import VideoFileSource
 from physiosight.exercises.spec import load_spec
 from physiosight.perception.mediapipe_backend import MediaPipePoseBackend
+from physiosight.perception.models import model_path
 from physiosight.pipeline import Analysis
 from physiosight.render.overlay import draw_hud, draw_pose
 from physiosight.session.models import SourceInfo
@@ -46,7 +47,7 @@ from physiosight.events import FaultDetected
 from physiosight import i18n
 
 spec, sha = load_spec(exercise, side=track_arm if exercise == "bicep_curl" else None)
-backend = MediaPipePoseBackend(str(POSE_MODEL))
+backend = MediaPipePoseBackend(str(model_path()))
 analysis = Analysis(
     spec, target=spec.default_target,
     source=SourceInfo(kind="video", width=w, height=h, nominal_fps=fps),

@@ -28,6 +28,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/physiosight"]
 
+[tool.hatch.build.targets.wheel.force-include]
+# bundle the MediaPipe models (Apache-2.0) so a pip-installed package works without a checkout
+"models/pose_landmarker_lite.task" = "physiosight/models/pose_landmarker_lite.task"
+"models/hand_landmarker.task" = "physiosight/models/hand_landmarker.task"
+
 [tool.hatch.build.targets.sdist]
 exclude = ["/models", "/legacy", "/.github"]
 

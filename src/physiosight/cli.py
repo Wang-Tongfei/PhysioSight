@@ -14,9 +14,14 @@ import json
 import sys
 from pathlib import Path
 
-MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
-DEFAULT_MODEL = MODELS_DIR / "pose_landmarker_lite.task"
-DEFAULT_HAND_MODEL = MODELS_DIR / "hand_landmarker.task"
+
+def _default_model(name: str) -> str | None:
+    from physiosight.perception.models import model_path
+
+    try:
+        return str(model_path(name))
+    except FileNotFoundError:
+        return None
 
 
 def _load_overrides(path: str | None, pairs: list[str]) -> dict[str, float]:
@@ -42,7 +47,7 @@ def cmd_specs(_args) -> int:
 
     for name in list_builtin_specs():
         spec, _ = load_spec(name)
-        print(f"{spec.id:12s} {spec.kind:10s} v{spec.version}  sides={spec.sides}  view={spec.view}")
+        print(f"{spec.id:18s} {spec.kind:10s} v{spec.version}  sides={spec.sides}  view={spec.view}")
     return 0
 
 
@@ -57,13 +62,19 @@ def cmd_schema(args) -> int:
     return 0
 
 
+def _require_model(path: str | None) -> str:
+    if not path:
+        raise SystemExit("pose model not found: pass --model or set PHYSIOSIGHT_MODELS")
+    return path
+
+
 def cmd_extract(args) -> int:
     from physiosight.capture.sources import VideoFileSource
     from physiosight.perception.mediapipe_backend import MediaPipePoseBackend
     from physiosight.pipeline import extract_landmarks
 
     source = VideoFileSource(args.video)
-    backend = MediaPipePoseBackend(str(args.model))
+    backend = MediaPipePoseBackend(_require_model(args.model))
     try:
         seq = extract_landmarks(source, backend, args.limit)
     finally:
@@ -102,8 +113,8 @@ def cmd_run(args) -> int:
 
     opts = LiveOptions(
         source=args.source, exercise=args.exercise, side=args.side, target=args.target,
-        params=_load_overrides(args.params, args.set) or None, pose_model=str(args.model),
-        hand_model=None if args.no_hands else str(args.hand_model), smoothing=args.smooth,
+        params=_load_overrides(args.params, args.set) or None, pose_model=_require_model(args.model),
+        hand_model=None if args.no_hands or not args.hand_model else str(args.hand_model), smoothing=args.smooth,
         clips_dir=args.clips or None, sessions_dir=args.sessions_dir, headless=args.headless,
         cover_face=not args.show_face, lang=args.lang,
     )
@@ -147,7 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     sp = sub.add_parser("extract")
     sp.add_argument("video")
     sp.add_argument("-o", "--output", required=True)
-    sp.add_argument("--model", default=DEFAULT_MODEL)
+    sp.add_argument("--model", default=_default_model("pose_landmarker_lite.task"))
     sp.add_argument("--limit", type=float, help="seconds")
     sp.set_defaults(fn=cmd_extract)
 
@@ -173,8 +184,8 @@ def main(argv: list[str] | None = None) -> int:
 
     sp = sub.add_parser("run", help="interactive monitor on a camera or video")
     sp.add_argument("source", nargs="?", default="0", help="camera index (default 0) or video path")
-    sp.add_argument("--model", default=DEFAULT_MODEL)
-    sp.add_argument("--hand-model", default=DEFAULT_HAND_MODEL)
+    sp.add_argument("--model", default=_default_model("pose_landmarker_lite.task"))
+    sp.add_argument("--hand-model", default=_default_model("hand_landmarker.task"))
     sp.add_argument("--no-hands", action="store_true")
     sp.add_argument("--clips", default="clips", help="fault clip directory ('' to disable)")
     sp.add_argument("--sessions-dir", help="write one Session JSON per exercise segment")
