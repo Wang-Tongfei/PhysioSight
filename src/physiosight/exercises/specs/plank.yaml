@@ -1,0 +1,41 @@
+id: plank
+version: "1.0.0"
+kind: hold
+name_key: exercise.plank
+view: side
+default_target: 30
+params:
+  max_side_span: {default: 0.35, min: 0.05, max: 1.5, unit: ratio, doc: "shoulder width / torso length below which the camera is side-on"}
+  min_body_line: {default: 160, min: 120, max: 180, unit: deg}
+  max_incline: {default: 35, min: 5, max: 89, unit: deg}
+  min_elbow_drop: {default: 0.035, min: 0, max: 0.5, unit: image_height}
+  min_wrist_drop: {default: 0.055, min: 0, max: 0.5, unit: image_height}
+  max_dt_s: {default: 0.25, min: 0.01, max: 5, unit: s, doc: "cap on time credited per frame (dropped frames)"}
+  reset_after_break_s: {default: 0.75, min: 0, max: 600, unit: s, doc: "a break this long resets the hold (legacy behaviour)"}
+required: [left_shoulder, right_shoulder, left_elbow, right_elbow, left_wrist, right_wrist,
+           left_hip, right_hip, left_ankle, right_ankle]
+features:
+  shoulder_span: {type: distance_ratio, points: [left_shoulder, right_shoulder, [left_shoulder, right_shoulder], [left_hip, right_hip]]}
+  line_l: {type: joint_angle, points: [left_shoulder, left_hip, left_ankle]}
+  line_r: {type: joint_angle, points: [right_shoulder, right_hip, right_ankle]}
+  incline: {type: segment_incline, points: [[left_shoulder, right_shoulder], [left_ankle, right_ankle]]}
+  elbow_drop: {type: vertical_offset, points: [[left_elbow, right_elbow], [left_shoulder, right_shoulder]]}
+  wrist_drop: {type: vertical_offset, points: [[left_wrist, right_wrist], [left_shoulder, right_shoulder]]}
+derived:
+  body_line: "mean(line_l, line_r)"
+  horizontal: "incline < p.max_incline"
+  supported: "elbow_drop > p.min_elbow_drop or wrist_drop > p.min_wrist_drop"
+valid_when: "horizontal and supported and body_line >= p.min_body_line"
+max_dt_s: p.max_dt_s
+reset_after_break_s: p.reset_after_break_s
+checks:
+  - {id: alignment, when: "horizontal and supported and body_line < p.min_body_line",
+     fault: plank_body_alignment, scope: always, invalidates_rep: false}
+primary_metric: {label_key: metric.body_line, expr: "body_line"}
+tracking_hint: hint.plank.in_view
+hints:
+  - {when: "not horizontal", key: hint.plank.side_on}
+  - {when: "not supported", key: hint.plank.hands_under}
+  - {when: "body_line < p.min_body_line", key: hint.common.straight_line}
+default_hint: hint.plank.hold
+view_check: "shoulder_span < p.max_side_span"

@@ -1,0 +1,40 @@
+id: squat
+version: "1.0.0"
+kind: repetition
+name_key: exercise.squat
+view: any
+params:
+  stand_angle: {default: 160, min: 120, max: 180, unit: deg, doc: "both knees above this = standing"}
+  start_angle: {default: 145, min: 90, max: 175, unit: deg, doc: "both knees below this = descent started"}
+  depth_angle: {default: 100, min: 40, max: 160, unit: deg, doc: "both knees at or below this = target depth"}
+  max_asymmetry: {default: 20, min: 2, max: 90, unit: deg, doc: "left/right knee angle difference"}
+  min_rep_s: {default: 0.8, min: 0, max: 10, unit: s}
+  ready_hold_s: {default: 0.12, min: 0, max: 5, unit: s}
+  target_hold_s: {default: 0.06, min: 0, max: 5, unit: s}
+  return_hold_s: {default: 0.09, min: 0, max: 5, unit: s}
+  tracking_grace_s: {default: 0.03, min: 0, max: 5, unit: s}
+required: [left_hip, right_hip, left_knee, right_knee, left_ankle, right_ankle]
+features:
+  knee_l: {type: joint_angle, points: [left_hip, left_knee, left_ankle]}
+  knee_r: {type: joint_angle, points: [right_hip, right_knee, right_ankle]}
+derived:
+  uneven: "abs(knee_l - knee_r) > p.max_asymmetry"
+ready: {when: "knee_l > p.stand_angle and knee_r > p.stand_angle", hold_s: p.ready_hold_s}
+start: {when: "knee_l < p.start_angle and knee_r < p.start_angle"}
+target: {when: "knee_l <= p.depth_angle and knee_r <= p.depth_angle", hold_s: p.target_hold_s}
+return: {when: "knee_l > p.stand_angle and knee_r > p.stand_angle", hold_s: p.return_hold_s}
+min_rep_duration_s: p.min_rep_s
+tracking_grace_s: p.tracking_grace_s
+missed_target_fault: shallow_squat
+checks:
+  - {id: asymmetry, when: "uneven", fault: uneven_squat, scope: always}
+record:
+  knee_flexion_left: "180 - knee_l"
+  knee_flexion_right: "180 - knee_r"
+primary_metric: {label_key: metric.knee, expr: "mean(knee_l, knee_r)"}
+tracking_hint: hint.squat.in_view
+hints:
+  - {when: "uneven", key: hint.squat.even_knees}
+  - {when: "state.at_target", key: hint.squat.stand_up}
+  - {when: "not state.ready", key: hint.squat.stand_tall}
+default_hint: hint.common.progress
