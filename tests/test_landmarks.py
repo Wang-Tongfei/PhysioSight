@@ -28,3 +28,14 @@ def test_convert_to_coco17_by_name():
     assert coco.xy.shape[1] == len(COCO_17)
     k = BLAZEPOSE_33.index("left_knee")
     np.testing.assert_array_equal(coco.xy[:, COCO_17.index("left_knee")], seq.xy[:, k])
+
+
+def test_synthetic_figure_has_the_requested_joint_angle():
+    from physiosight.kinematics.features import interior_angle
+
+    seq = synth.render(synth.Script("squat", {"knee_l": 120.0, "knee_r": 100.0}, [(0.1, {})]), fps=10)
+    xy = seq.xy[0]
+    idx = BLAZEPOSE_33.index
+    left = interior_angle(xy[idx("left_hip")], xy[idx("left_knee")], xy[idx("left_ankle")])
+    right = interior_angle(xy[idx("right_hip")], xy[idx("right_knee")], xy[idx("right_ankle")])
+    assert left == pytest.approx(120, abs=1e-6) and right == pytest.approx(100, abs=1e-6)
