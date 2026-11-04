@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Single-camera, real-time, markerless movement analysis for rehabilitation exercises (research/demo tool, not a medical device)."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Proprietary - see repository" }
+license = { text = "MIT" }
+license-files = ["LICENSE"]
 dependencies = [
     "pydantic>=2.7",
     "pyyaml>=6.0",
