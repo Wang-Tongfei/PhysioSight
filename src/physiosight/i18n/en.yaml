@@ -1,0 +1,47 @@
+exercise.bicep_curl: Bicep curl
+exercise.squat: Squat
+exercise.pushup: Push-up
+exercise.plank: Plank
+metric.elbow: Elbow
+metric.knee: Knee
+metric.body_line: Body line
+hint.common.progress: "Reps: {progress}/{target}"
+hint.common.straight_line: Keep shoulders, hips and ankles in one line
+hint.curl.in_view: Keep the tracked shoulder, arm and hip fully in view
+hint.curl.upper_arm_close: Keep the upper arm close to the torso
+hint.curl.extend_first: Fully extend the elbow before starting
+hint.curl.lower_with_control: Good top position - lower with control
+hint.curl.full_range: Curl through the full range
+hint.squat.in_view: Keep both hips, knees and ankles in view
+hint.squat.even_knees: Keep both knees moving evenly
+hint.squat.stand_up: Good depth - stand up
+hint.squat.stand_tall: Stand fully upright before starting
+hint.pushup.in_view: Keep shoulders, arms, hips and ankles fully in view
+hint.pushup.side_on: Turn side-on and take the top push-up position
+hint.pushup.hands_under: Place hands below the shoulders
+hint.pushup.push_up: Good depth - push up
+hint.pushup.hold_top: Hold a straight top position before starting
+hint.plank.in_view: Keep shoulders, arms, hips and ankles fully in view
+hint.plank.side_on: Turn side-on and hold a horizontal plank
+hint.plank.hands_under: Place hands or forearms below the shoulders
+hint.plank.hold: "Hold: {progress:.1f}/{target:.0f} sec"
+fault.movement_too_fast: Move slowly and with control
+fault.partial_curl: Partial rep - curl all the way up
+fault.upper_arm_drift: Keep the upper arm close to the torso
+fault.shallow_squat: Squat deeper before standing
+fault.uneven_squat: Keep both knees moving evenly
+fault.shallow_pushup: Lower until elbows reach about 90 degrees
+fault.pushup_body_alignment: Keep shoulders, hips and ankles in one line
+fault.plank_body_alignment: Keep shoulders, hips and ankles in one line
+fault.tracking_lost: Tracking lost - stay in view
+fault.session_ended: Session ended mid-repetition
+event.good_rep: "Good rep! ({progress}/{target})"
+exercise.shoulder_flexion: Shoulder flexion
+metric.shoulder: Shoulder
+hint.shoulder.in_view: Keep the tracked hip, shoulder and arm in view, side-on
+hint.shoulder.straight_elbow: Keep the elbow straight
+hint.shoulder.arm_down: Start with the arm relaxed at your side
+hint.shoulder.lower_slowly: Good height - lower slowly
+hint.shoulder.raise_higher: Raise the arm forward and up
+fault.insufficient_range: Did not reach the prescribed range
+fault.elbow_bent: Keep the elbow straight

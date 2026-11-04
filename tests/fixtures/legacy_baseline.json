@@ -1,0 +1,944 @@
+{
+ "generated_by": "tools/baseline/record_fixtures.py",
+ "legacy_commit": "dff7bccec75eb9fd066cbca6a551f3cad64f97b5",
+ "cases": [
+  {
+   "name": "squat-clean-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     97,
+     1.0
+    ],
+    [
+     184,
+     2.0
+    ],
+    [
+     271,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "squat-clean-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     97,
+     1.0
+    ],
+    [
+     183,
+     2.0
+    ],
+    [
+     271,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "squat-shallow-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     94,
+     "shallow_squat"
+    ],
+    [
+     181,
+     "shallow_squat"
+    ],
+    [
+     268,
+     "shallow_squat"
+    ]
+   ]
+  },
+  {
+   "name": "squat-shallow-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     94,
+     "shallow_squat"
+    ],
+    [
+     181,
+     "shallow_squat"
+    ],
+    [
+     269,
+     "shallow_squat"
+    ]
+   ]
+  },
+  {
+   "name": "squat-uneven-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     50,
+     "uneven_squat"
+    ],
+    [
+     97,
+     "uneven_squat"
+    ],
+    [
+     138,
+     "uneven_squat"
+    ],
+    [
+     184,
+     "uneven_squat"
+    ],
+    [
+     224,
+     "uneven_squat"
+    ],
+    [
+     271,
+     "uneven_squat"
+    ]
+   ]
+  },
+  {
+   "name": "squat-uneven-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     46,
+     "uneven_squat"
+    ],
+    [
+     50,
+     "uneven_squat"
+    ],
+    [
+     53,
+     "uneven_squat"
+    ],
+    [
+     79,
+     "uneven_squat"
+    ],
+    [
+     97,
+     "uneven_squat"
+    ],
+    [
+     138,
+     "uneven_squat"
+    ],
+    [
+     142,
+     "uneven_squat"
+    ],
+    [
+     166,
+     "uneven_squat"
+    ],
+    [
+     183,
+     "uneven_squat"
+    ],
+    [
+     224,
+     "uneven_squat"
+    ],
+    [
+     227,
+     "uneven_squat"
+    ],
+    [
+     271,
+     "uneven_squat"
+    ]
+   ]
+  },
+  {
+   "name": "squat-too_fast-noise0",
+   "expect": "identical",
+   "n_frames": 148,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     53,
+     "movement_too_fast"
+    ],
+    [
+     92,
+     "movement_too_fast"
+    ],
+    [
+     131,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "squat-too_fast-noise1.5",
+   "expect": "identical",
+   "n_frames": 148,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     53,
+     "movement_too_fast"
+    ],
+    [
+     92,
+     "movement_too_fast"
+    ],
+    [
+     131,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-clean-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     99,
+     1.0
+    ],
+    [
+     186,
+     2.0
+    ],
+    [
+     273,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "bicep_curl-clean-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     100,
+     1.0
+    ],
+    [
+     186,
+     2.0
+    ],
+    [
+     273,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "bicep_curl-partial-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     98,
+     "partial_curl"
+    ],
+    [
+     185,
+     "partial_curl"
+    ],
+    [
+     272,
+     "partial_curl"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-partial-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     100,
+     "partial_curl"
+    ],
+    [
+     186,
+     "partial_curl"
+    ],
+    [
+     272,
+     "partial_curl"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-drift-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     36,
+     "upper_arm_drift"
+    ],
+    [
+     99,
+     "upper_arm_drift"
+    ],
+    [
+     123,
+     "upper_arm_drift"
+    ],
+    [
+     186,
+     "upper_arm_drift"
+    ],
+    [
+     210,
+     "upper_arm_drift"
+    ],
+    [
+     273,
+     "upper_arm_drift"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-drift-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     36,
+     "upper_arm_drift"
+    ],
+    [
+     100,
+     "upper_arm_drift"
+    ],
+    [
+     123,
+     "upper_arm_drift"
+    ],
+    [
+     187,
+     "upper_arm_drift"
+    ],
+    [
+     210,
+     "upper_arm_drift"
+    ],
+    [
+     273,
+     "upper_arm_drift"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-too_fast-noise0",
+   "expect": "identical",
+   "n_frames": 126,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     47,
+     "movement_too_fast"
+    ],
+    [
+     79,
+     "movement_too_fast"
+    ],
+    [
+     111,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "bicep_curl-too_fast-noise1.5",
+   "expect": "identical",
+   "n_frames": 126,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     47,
+     "movement_too_fast"
+    ],
+    [
+     79,
+     "movement_too_fast"
+    ],
+    [
+     111,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "pushup-clean-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     97,
+     1.0
+    ],
+    [
+     184,
+     2.0
+    ],
+    [
+     271,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "pushup-clean-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 3.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     96,
+     1.0
+    ],
+    [
+     185,
+     2.0
+    ],
+    [
+     271,
+     3.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "pushup-shallow-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     93,
+     "shallow_pushup"
+    ],
+    [
+     180,
+     "shallow_pushup"
+    ],
+    [
+     267,
+     "shallow_pushup"
+    ]
+   ]
+  },
+  {
+   "name": "pushup-shallow-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     93,
+     "shallow_pushup"
+    ],
+    [
+     179,
+     "shallow_pushup"
+    ],
+    [
+     267,
+     "shallow_pushup"
+    ]
+   ]
+  },
+  {
+   "name": "pushup-too_fast-noise0",
+   "expect": "identical",
+   "n_frames": 148,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     53,
+     "movement_too_fast"
+    ],
+    [
+     92,
+     "movement_too_fast"
+    ],
+    [
+     131,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "pushup-too_fast-noise1.5",
+   "expect": "identical",
+   "n_frames": 148,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     53,
+     "movement_too_fast"
+    ],
+    [
+     92,
+     "movement_too_fast"
+    ],
+    [
+     132,
+     "movement_too_fast"
+    ]
+   ]
+  },
+  {
+   "name": "pushup-sagging-noise0",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "pushup-sagging-noise1.5",
+   "expect": "identical",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "plank-good",
+   "expect": "identical",
+   "n_frames": 181,
+   "final_progress": 6.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     10,
+     0.333333333
+    ],
+    [
+     20,
+     0.666666667
+    ],
+    [
+     30,
+     1.0
+    ],
+    [
+     40,
+     1.333333333
+    ],
+    [
+     50,
+     1.666666667
+    ],
+    [
+     60,
+     2.0
+    ],
+    [
+     70,
+     2.333333333
+    ],
+    [
+     80,
+     2.666666667
+    ],
+    [
+     90,
+     3.0
+    ],
+    [
+     100,
+     3.333333333
+    ],
+    [
+     110,
+     3.666666667
+    ],
+    [
+     120,
+     4.0
+    ],
+    [
+     130,
+     4.333333333
+    ],
+    [
+     140,
+     4.666666667
+    ],
+    [
+     150,
+     5.0
+    ],
+    [
+     160,
+     5.333333333
+    ],
+    [
+     170,
+     5.666666667
+    ],
+    [
+     180,
+     6.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "plank-sag25",
+   "expect": "identical",
+   "n_frames": 181,
+   "final_progress": 6.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     10,
+     0.333333333
+    ],
+    [
+     20,
+     0.666666667
+    ],
+    [
+     30,
+     1.0
+    ],
+    [
+     40,
+     1.333333333
+    ],
+    [
+     50,
+     1.666666667
+    ],
+    [
+     60,
+     2.0
+    ],
+    [
+     70,
+     2.333333333
+    ],
+    [
+     80,
+     2.666666667
+    ],
+    [
+     90,
+     3.0
+    ],
+    [
+     100,
+     3.333333333
+    ],
+    [
+     110,
+     3.666666667
+    ],
+    [
+     120,
+     4.0
+    ],
+    [
+     130,
+     4.333333333
+    ],
+    [
+     140,
+     4.666666667
+    ],
+    [
+     150,
+     5.0
+    ],
+    [
+     160,
+     5.333333333
+    ],
+    [
+     170,
+     5.666666667
+    ],
+    [
+     180,
+     6.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "plank-sag60",
+   "expect": "identical",
+   "n_frames": 181,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     0,
+     "plank_body_alignment"
+    ]
+   ]
+  },
+  {
+   "name": "squat-target-stop",
+   "expect": "identical",
+   "n_frames": 185,
+   "final_progress": 2.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ],
+    [
+     97,
+     1.0
+    ],
+    [
+     184,
+     2.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "BC1-squat-16x9",
+   "expect": "BC-1",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     91,
+     "shallow_squat"
+    ],
+    [
+     178,
+     "shallow_squat"
+    ],
+    [
+     265,
+     "shallow_squat"
+    ]
+   ]
+  },
+  {
+   "name": "BC1-pushup-16x9",
+   "expect": "BC-1",
+   "n_frames": 292,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": []
+  },
+  {
+   "name": "BC2-squat-10fps",
+   "expect": "BC-2",
+   "n_frames": 62,
+   "final_progress": 0.0,
+   "progress_changes": [
+    [
+     0,
+     0.0
+    ]
+   ],
+   "faults": [
+    [
+     27,
+     "shallow_squat"
+    ],
+    [
+     44,
+     "shallow_squat"
+    ],
+    [
+     61,
+     "shallow_squat"
+    ]
+   ]
+  }
+ ]
+}

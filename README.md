@@ -1,282 +1,180 @@
-# Physio AI Bot
+# PhysioSight
 
-A local MediaPipe-based rehabilitation exercise monitor. It supports live
-camera and video-file input, a simplified full-body skeleton, detailed hand
-landmarks, repetition counting, hold timing, form checks, fault clips, and
-optional Telegram notifications.
+Single-camera, real-time, markerless movement analysis for rehabilitation
+exercises. PhysioSight tracks the body with a pose model (MediaPipe BlazePose
+by default), counts repetitions and holds, checks form against declarative,
+per-patient-calibratable rules, and writes a structured **Session** record per
+exercise set.
 
-> This version is intended for development, demonstrations, and rule
-> validation. It is not a medical diagnostic tool or a clinically validated
-> decision system.
+> **Not a medical device.** PhysioSight is a development, demonstration and
+> research tool. It does not diagnose, and its thresholds and angles are not
+> clinically validated. Angles from a single 2D camera are projections and
+> depend on the viewpoint (see [docs/VALIDATION.md](docs/VALIDATION.md)).
 
-## Features
+## Quick start (about 10 minutes)
 
-- Live camera and local video analysis
-- Body tracking for shoulders, elbows, wrists, hips, knees, ankles, and feet
-- Detailed two-hand tracking with 21 landmarks per hand
-- Anonymous oval head inferred from ears and shoulders, without facial features
-- Bicep curl, squat, plank, and push-up modes
-- Strict movement state machines: invalid repetitions are not counted
-- Rolling fault-clip recording
-- Optional Telegram text and video alerts
+Requires Python 3.11+ and [uv](https://docs.astral.sh/uv/) (or plain `pip`).
 
-## Requirements
-
-Windows and Python 3.12 are recommended.
-
-List installed Python versions:
-
-```powershell
-py -0p
+```bash
+git clone https://github.com/Wang-Tongfei/PhysioSight && cd PhysioSight
+uv venv && source .venv/bin/activate          # Windows: .venv\Scripts\activate
+uv pip install -e ".[mediapipe,notify,dev]"
+pytest                                        # ~1 min, no camera or video needed
 ```
 
-Create a project-specific virtual environment:
+Live camera (key controls below), or a video file:
 
-```powershell
-cd D:\Physio_AI_Bot
-py -3.12 -m venv .venv
+```bash
+physiosight run                     # camera 0, bicep curl
+physiosight run 1 -e squat          # camera 1
+physiosight run path/to/video.mp4 -e pushup --sessions-dir sessions/
 ```
 
-Install the dependencies:
+Offline, reproducible analysis (pose extraction once, analysis many times):
 
-```powershell
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```bash
+physiosight extract video.mp4 -o video.npz                 # MediaPipe -> landmark cache
+physiosight analyze video.npz -e squat -o session.json --lang zh
+physiosight analyze video.npz -e squat --set depth_angle=110   # calibrated threshold
 ```
 
-Verify the environment:
+Other commands: `physiosight specs` (list exercises), `physiosight schema`
+(Session JSON Schema), `physiosight notify-test [--video clip.mp4]` (Telegram check).
 
-```powershell
-.\.venv\Scripts\python.exe -c "import cv2, mediapipe, requests; print('Environment OK')"
-```
+Linux needs the EGL/GL runtime for MediaPipe: `sudo apt-get install libegl1 libgles2 libgl1`.
 
-## Model files
+### Key controls (`physiosight run`)
 
-Make sure both files exist:
-
-```text
-models/pose_landmarker_lite.task
-models/hand_landmarker.task
-```
-
-If the hand model is missing, body tracking will continue, but detailed hand
-tracking will be disabled with a terminal warning.
-
-## Run with a live camera
-
-```powershell
-cd D:\Physio_AI_Bot
-.\.venv\Scripts\python.exe physio_form_monitor.py
-```
-
-The default camera is configured in `config.py`:
-
-```python
-camera_index: int = 0
-```
-
-If the camera cannot be opened, close applications such as Zoom, Teams, or
-WeChat that may be using it. You can also try camera index `1`.
-
-## Analyze a local video
-
-```powershell
-.\.venv\Scripts\python.exe physio_form_monitor.py "D:\Videos\test.mp4"
-```
-
-After the video window opens, press `1` through `4` to select its exercise.
-Video is processed frame by frame and may not play at its original speed.
-
-## Keyboard controls
-
-Click the OpenCV video window before using the keys.
+Click the video window first.
 
 | Key | Action |
-| --- | --- |
-| `1` | Bicep curl |
-| `2` | Squat |
-| `3` | Plank |
-| `4` | Push-up |
-| `a` | Switch the curl arm |
-| `r` | Reset the current exercise |
+|---|---|
+| `1` `2` `3` `4` `5` | Bicep curl, squat, plank, push-up, shoulder flexion |
+| `a` | Switch side (sided exercises) |
+| `r` | Reset (starts a new Session) |
 | `q` | Quit |
 
-## Camera placement
+## Exercises
 
-General guidance:
+| Id | Kind | Recommended view | Faults |
+|---|---|---|---|
+| `bicep_curl` | repetition, left/right | front or three-quarter (counting); side for elbow angle | `partial_curl`, `upper_arm_drift`, `movement_too_fast` |
+| `squat` | repetition | front or front three-quarter (counting, symmetry); side for knee angle | `shallow_squat`, `uneven_squat`, `movement_too_fast` |
+| `pushup` | repetition | full side view | `shallow_pushup`, `pushup_body_alignment`, `movement_too_fast` |
+| `plank` | hold | full side view | `plank_body_alignment` |
+| `shoulder_flexion` | repetition, left/right | side view | `insufficient_range`, `elbow_bent`, `movement_too_fast` |
 
-- Keep the head, hands, and feet inside the frame
-- Use adequate lighting and avoid strong backlighting
-- Avoid clothing that hides the joints
-- Perform slow, controlled movements
+General guidance: keep the whole body in frame, use good light, avoid
+clothing that hides the joints, move slowly. A repetition only counts if it
+starts from the ready position, reaches the target, passes all checks and
+returns. The plank timer resets after about 0.75 s of continuously broken form.
 
-Recommended views:
+### Adding an exercise
 
-| Exercise | Recommended view |
-| --- | --- |
-| Bicep curl | Front or three-quarter |
-| Squat | Front or front three-quarter |
-| Plank | Full side view |
-| Push-up | Full side view |
+Write a YAML file – no engine code. `shoulder_flexion` was added this way:
+see [src/physiosight/exercises/specs/shoulder_flexion.yaml](src/physiosight/exercises/specs/shoulder_flexion.yaml).
+A spec declares parameters with bounds, required keypoints, geometric
+features (`joint_angle`, `segment_incline`, `vertical_offset`,
+`distance_ratio`), phase conditions with hold times in seconds, checks that
+raise fault codes, angles to record per repetition, and hint keys. Conditions
+use a small safe expression language (`abs(knee_l - knee_r) > p.max_asymmetry`).
+Use it with `-e path/to/my_exercise.yaml`; put user-facing text in
+`src/physiosight/i18n/{en,zh}.yaml`.
 
-## Counting rules
+### Thresholds and calibration
 
-### Bicep curl
+Every threshold is a spec parameter with a default and allowed range. Values
+are resolved in layers – spec default → patient calibration (`--params
+patient.json`) → session override (`--set key=value`) – and the effective
+values are written into each Session for reproducibility.
 
-- Begin with the elbow fully extended
-- Reach the configured elbow flexion angle
-- Keep the upper arm close to the torso
-- Return to full extension before the repetition is counted
+## Session output
 
-### Squat
+One JSON document per exercise set ([schema](schema/session.schema.json),
+model in `physiosight.session.models`): exercise and side, source (size, fps,
+mirroring), engine (version, pose backend, spec version and hash, resolved
+parameters), tracking quality, summary, every repetition attempt (timing,
+outcome `valid`/`invalid`/`aborted`, fault codes, per-angle min/max, whether
+the viewpoint suited the angle), hold segments and fault events. It contains
+no images, landmarks or patient identity.
 
-- Begin fully upright
-- Move both legs into the squat
-- Reach the required depth with both knees
-- Keep the left/right knee-angle difference within the allowed range
-- Return fully upright before the repetition is counted
+## Architecture
 
-### Push-up
-
-- Begin in a valid top position
-- Keep the body approximately horizontal
-- Keep the shoulders, hips, and ankles aligned
-- Reach the required depth with both elbows
-- Return to full extension before the repetition is counted
-
-### Plank
-
-- Keep the body approximately horizontal
-- Keep the shoulders, hips, and ankles aligned
-- Support the upper body with the hands or forearms
-- The current hold is reset after approximately 0.75 seconds of continuous
-  invalid form
-
-The included thresholds are engineering defaults. Rehabilitation use requires
-calibration for the patient's range of motion and the therapist's protocol.
-
-## Red border and fault clips
-
-A red border means the program detected invalid form and triggered a fault
-clip. By default, it saves approximately four seconds from the rolling buffer.
-
-Clips are written to:
-
-```text
-clips/
+```
+FrameSource ─► PoseBackend ─► LandmarkSmoother ─► Analyzer (spec-driven) ─► events ─► plugins (clips, Telegram)
+ camera/video   MediaPipe        One Euro           repetition | hold         │
+                (named skeleton)                                              └─► SessionBuilder ─► Session JSON
 ```
 
-Example filenames:
+Details, options considered and scope: [docs/PLAN.md](docs/PLAN.md).
+Decisions: [docs/DECISIONS.md](docs/DECISIONS.md).
+Differences from the original engine: [docs/BEHAVIOR_CHANGES.md](docs/BEHAVIOR_CHANGES.md).
+Platform integration: [docs/PLATFORM_MIGRATION.md](docs/PLATFORM_MIGRATION.md).
 
-```text
-shallow_squat_20260729_153000.mp4
-pushup_body_alignment_20260729_153120.mp4
-upper_arm_drift_20260729_153250.mp4
+```
+src/physiosight/   capture, perception, signal, kinematics, exercises (+ specs/), session,
+                   plugins, render, eval, live.py, pipeline.py, cli.py
+tests/             geometry, expressions, specs, state machines, properties (Hypothesis),
+                   legacy parity (fixture), CLI, rendering, validation tools
+tools/baseline/    legacy replay, baseline suite, fixture recorder, real-video comparison
+tools/validate/    counting and angle-agreement reports for your own recordings
+tools/experiments/ synthetic robustness study
+legacy/            the original engine, unchanged (baseline reference; removed after the platform migrates)
+models/            MediaPipe pose and hand models
 ```
 
-`clips/`, `*.mp4`, and `*.avi` are excluded by `.gitignore`.
+## Testing
 
-## Telegram notifications
+```bash
+pytest                         # all tests; legacy-replay test runs only if mediapipe is installed
+ruff check src tests tools && mypy src/physiosight
+```
 
-Telegram is disabled unless both a Bot Token and a Chat ID are present.
+The test suite needs no camera, video or GPU. The analysis layer is tested on
+synthetic landmark sequences with exact ground truth, including frame-by-frame
+parity with the original engine on 28 recorded cases and property tests
+(counts identical at 10/30/60 fps and any aspect ratio; never counting
+without reaching depth; low-confidence input never advancing). See
+[docs/VALIDATION.md](docs/VALIDATION.md) for validating on real recordings.
 
-Set permanent environment variables for the current Windows user:
+## Telegram alerts (optional)
+
+Disabled unless both variables are set (the old `PHYSIO_TG_*` names also work):
 
 ```powershell
-[Environment]::SetEnvironmentVariable(
-    "PHYSIO_TG_TOKEN",
-    "your-bot-token",
-    "User"
-)
-
-[Environment]::SetEnvironmentVariable(
-    "PHYSIO_TG_CHAT",
-    "your-chat-id",
-    "User"
-)
+[Environment]::SetEnvironmentVariable("PHYSIOSIGHT_TG_TOKEN", "your-bot-token", "User")
+[Environment]::SetEnvironmentVariable("PHYSIOSIGHT_TG_CHAT", "your-chat-id", "User")
 ```
 
-Close and reopen PowerShell, then test text alerts:
+Then `physiosight notify-test` (and `--video clips/x.mp4`). Never commit tokens;
+`.env` and `*.token` are git-ignored.
 
-```powershell
-.\.venv\Scripts\python.exe send_test_alert.py
-```
+## Fault clips
 
-Test video alerts:
-
-```powershell
-.\.venv\Scripts\python.exe send_test_video.py
-```
-
-When correctly configured, the main program prints:
-
-```text
-Telegram alerts: ENABLED
-```
-
-Never commit the Bot Token or Chat ID. `.env` and `*.token` files are excluded
-by `.gitignore`.
-
-## Configuration
-
-Common settings are in `config.py`:
-
-- Camera index
-- Default exercise
-- Target repetitions
-- Plank target duration
-- Curl angles
-- Fault-clip buffer length
-- Model paths
-- Detailed hand-tracking switch
-
-Restart the program after changing the configuration.
+When a fault is detected, the last ~4 s of the rendered view are saved to
+`clips/` (at most one clip per fault code per 15 s) and, if configured, sent
+via Telegram. `--clips ''` disables recording.
 
 ## Privacy
 
-- Pose and facial landmark data are not saved
-- The anonymous oval changes only the skeleton overlay
-- The raw camera image and fault clips still contain the person's real face
-- Add face blurring before recording or sending clips if clinical privacy
-  protection is required
+- Pose landmarks and video are not stored unless you run `extract` or record clips.
+- Sessions contain no images, landmarks or identity.
+- The head is covered by a filled oval in the view and in clips, placed from
+  ears and shoulders only (eye/nose/mouth keypoints are not used).
+  `--show-face` turns this off. If no person is detected in a frame, nothing
+  is covered – clips can still contain faces or bystanders; review before sharing.
+- `clips/`, `*.mp4`, `*.avi`, `*.npz` and `cache/` are git-ignored.
 
-## Main files
+## References
 
-| File | Purpose |
-| --- | --- |
-| `physio_form_monitor.py` | Main loop, exercise switching, recording, alerts |
-| `exercise_analysis.py` | Exercise state machines and form rules |
-| `pose_estimator.py` | MediaPipe full-body pose tracking |
-| `hand_estimator.py` | Detailed MediaPipe hand tracking |
-| `hud.py` | Skeleton, anonymous head, panels, and red border |
-| `clip_recorder.py` | Rolling fault-clip recorder |
-| `notifier.py` | Telegram text and video sender |
-| `config.py` | Local runtime configuration |
-
-## Troubleshooting
-
-Reinstall missing dependencies:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-Confirm the virtual-environment Python:
-
-```powershell
-.\.venv\Scripts\python.exe --version
-```
-
-If hand landmarks are unstable:
-
-- Move the hands closer to the camera
-- Improve the lighting
-- Reduce motion blur
-- Avoid overlapping the hands
-
-If fault alerts trigger too often:
-
-- Check the recommended camera view
-- Keep the entire body visible
-- Adjust thresholds for the patient's range of motion
-- Calibrate using therapist-approved repetitions
+- V. Bazarevsky et al., *BlazePose: On-device Real-time Body Pose Tracking*, CVPR Workshops 2020, arXiv:2006.10204.
+- T. Jiang et al., *RTMPose: Real-Time Multi-Person Pose Estimation based on MMPose*, arXiv:2303.07399, 2023.
+- G. Casiez, N. Roussel, D. Vogel, *1€ Filter: A Simple Speed-based Low-pass Filter for Noisy Input in Interactive Systems*, CHI 2012, doi:10.1145/2207676.2208639.
+- A. Wang et al., *A webcam-based machine learning approach for three-dimensional range of motion evaluation*, PLOS ONE 2023, e0293178 (arXiv:2310.07322).
+- H. Hu et al., *TransRAC: Encoding Multi-scale Temporal Correlation with Transformers for Repetitive Action Counting*, CVPR 2022 (RepCount).
+- Z. Yao, X. Cheng, Y. Zou, *PoseRAC: Pose Saliency Transformer for Repetitive Action Counting*, arXiv:2303.08450, 2023; H. Chen, M. C. Leu, *Joint-based PoseRAC*, arXiv:2308.08632, 2023.
+- A. Ismail-Fawaz et al., *Deep Learning for Skeleton Based Human Motion Rehabilitation Assessment: A Benchmark* (Rehab-Pile), arXiv:2507.21018, 2025.
+- M. Capecci et al., *The KIMORE Dataset*, IEEE TNSRE 2019; A. Vakanski et al., *A Data Set of Human Body Movements for Physical Rehabilitation Exercises* (UI-PRMD), Data 2018.
+- W. Zhu et al., *MotionBERT*, ICCV 2023; S. Mehraban et al., *MotionAGFormer*, WACV 2024; M. Medrano-Paredes et al., arXiv:2510.02264, 2025 (monocular 3D vs IMU, healthy participants).
+- D. Pagnon et al., *Pose2Sim*, JOSS 2022; *Sports2D*, JOSS 2024; S. Uhlrich et al., *OpenCap*, PLOS Comput. Biol. 2023. FreeMoCap (AGPL) was consulted as prior art only; no code was copied.
+- P. Shrout, J. Fleiss, *Intraclass correlations*, Psychol. Bull. 1979; K. McGraw, S. Wong, Psychol. Methods 1996; T. Koo, M. Li, J. Chiropr. Med. 2016; J. M. Bland, D. G. Altman, Lancet 1986.

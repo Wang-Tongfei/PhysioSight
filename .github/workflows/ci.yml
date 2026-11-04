@@ -1,0 +1,33 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  core:
+    # Everything except the legacy replay: no camera, video, GPU or MediaPipe needed.
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv venv -p ${{ matrix.python }}
+      - run: uv pip install -e ".[dev]"
+      - run: uv run ruff check src tests tools
+      - run: uv run mypy src/physiosight
+      - run: uv run pytest
+
+  mediapipe:
+    # Re-derives the legacy baseline from the legacy code and runs the legacy tests,
+    # with the real MediaPipe / OpenCV stack installed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: sudo apt-get update && sudo apt-get install -y libegl1 libgles2 libgl1
+      - run: uv venv -p 3.12
+      - run: uv pip install -e ".[dev,mediapipe,notify]"
+      - run: uv run pytest tests/test_legacy_parity.py tests/test_render.py
+      - run: uv run pytest legacy/test_safety_guards.py
